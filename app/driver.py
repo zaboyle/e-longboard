@@ -8,22 +8,22 @@ import blynktimer
 # Display Constants                 #
 #===================================#
 BRICK_TO_VPIN   = {
-	0: 2,
-	1: 3,
-	2: 4,
-	3: 5,
-	4: 6,
-	5: 7,
-	6: 8,
+    0: 2,
+    1: 3,
+    2: 4,
+    3: 5,
+    4: 6,
+    5: 7,
+    6: 8,
 }
 VPIN_TO_BRICK   = {
-	2: 0,
-	3: 1,
-	4: 2,
-	5: 3,
-	6: 4,
-	7: 5,
-	8: 6,
+    BRICK_TO_VPIN[0]: 0,
+    BRICK_TO_VPIN[1]: 1,
+    BRICK_TO_VPIN[2]: 2,
+    BRICK_TO_VPIN[3]: 3,
+    BRICK_TO_VPIN[4]: 4,
+    BRICK_TO_VPIN[5]: 5,
+    BRICK_TO_VPIN[6]: 6,
 }
 BATT_VPIN       = 1
 BATT_WARNING_P  = 20.0 # 20%
@@ -81,14 +81,16 @@ def write_to_virtual_pin(pin):
     '''
     update total battery %
     '''
-    battery_percent = '<YourSensorData>'
+    battery_percent = 25 # '<YourSensorData>'
 
     print('writing {} to vpin {}'.format(battery_percent, pin))
     blynk.virtual_write(pin, battery_percent)
 
+	# set color for the widget UI element accordingly
     if battery_percent < BATT_WARNING_P:
-		# set red color for the widget UI element
-		blynk.set_property(pin, 'color', BATT_COLOR_LOW)
+        blynk.set_property(pin, 'color', BATT_COLOR_LOW)
+    else:
+        blynk.set_property(pin, 'color', BATT_COLOR_HIGH)
 
 
 @timer.register(pin=BRICK_TO_VPIN[0], interval=5, run_once=False)
@@ -102,14 +104,16 @@ def write_to_virtual_pin(pin):
     '''
     update all cell_v's
     '''
-    cell_v = '<YourSensorData>'
+    cell_v = 3.69987 # '<YourSensorData>'
 
     print('writing {} to vpin {}'.format(cell_v, pin))
     blynk.virtual_write(pin, cell_v)
 
+	# set color for the widget UI element accordingly
     if cell_v <= CELL_WARNING_V:
-		# set red color for the widget UI element
-		blynk.set_property(pin, 'color', BATT_COLOR_LOW)
+	    blynk.set_property(pin, 'color', BATT_COLOR_LOW)
+    else:
+        blynk.set_property(pin, 'color', BATT_COLOR_HIGH)
 
 # main loop that starts program and handles registered events
 while True:
