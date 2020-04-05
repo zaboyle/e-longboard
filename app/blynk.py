@@ -2,10 +2,13 @@
 # encoding: utf-8
 
 import os
+import socket
+import threading
 import blynklib
 import blynktimer
 import utils
 import yaml
+from time import sleep
 
 # Setup
 #======================================================================#
@@ -20,6 +23,8 @@ BLYNK_AUTH = os.environ.get('BLYNK_AUTH')
 blynk = blynklib.Blynk(BLYNK_AUTH)
 # create timers dispatcher instance
 timer = blynktimer.Timer()
+# use to terminate threads on keyboardinterrupt
+global exit_request
 #======================================================================#
 
 # advanced options of lib init
@@ -60,9 +65,7 @@ def joystick_write_handler(vpin, value):
 
 @timer.register(vpin=params['vpins']['BATT_LARGE'], interval=params['REFRESH_INTERVAL'], run_once=False)
 def write_to_virtual_pin(vpin):
-    '''
-    update total battery %
-    '''
+    '''update total battery %'''
     battery_percent = 25 # '<YourSensorData>'
 
     print('writing {} to vpin {}'.format(battery_percent, vpin))
@@ -75,17 +78,15 @@ def write_to_virtual_pin(vpin):
         blynk.set_property(vpin, 'color', params['BATT_COLOR_HIGH'])
 
 
-@timer.register(pin=params['vpins']['BRICK_TO_VPIN'][0], interval=params['REFRESH_INTERVAL'], run_once=False)
-@timer.register(pin=params['vpins']['BRICK_TO_VPIN'][1], interval=params['REFRESH_INTERVAL'], run_once=False)
-@timer.register(pin=params['vpins']['BRICK_TO_VPIN'][2], interval=params['REFRESH_INTERVAL'], run_once=False)
-@timer.register(pin=params['vpins']['BRICK_TO_VPIN'][3], interval=params['REFRESH_INTERVAL'], run_once=False)
-@timer.register(pin=params['vpins']['BRICK_TO_VPIN'][4], interval=params['REFRESH_INTERVAL'], run_once=False)
-@timer.register(pin=params['vpins']['BRICK_TO_VPIN'][5], interval=params['REFRESH_INTERVAL'], run_once=False)
-@timer.register(pin=params['vpins']['BRICK_TO_VPIN'][6], interval=params['REFRESH_INTERVAL'], run_once=False)
+@timer.register(pin=params['vpins']['BRICK_TO_VPIN_VOLT'][0], interval=params['REFRESH_INTERVAL'], run_once=False)
+@timer.register(pin=params['vpins']['BRICK_TO_VPIN_VOLT'][1], interval=params['REFRESH_INTERVAL'], run_once=False)
+@timer.register(pin=params['vpins']['BRICK_TO_VPIN_VOLT'][2], interval=params['REFRESH_INTERVAL'], run_once=False)
+@timer.register(pin=params['vpins']['BRICK_TO_VPIN_VOLT'][3], interval=params['REFRESH_INTERVAL'], run_once=False)
+@timer.register(pin=params['vpins']['BRICK_TO_VPIN_VOLT'][4], interval=params['REFRESH_INTERVAL'], run_once=False)
+@timer.register(pin=params['vpins']['BRICK_TO_VPIN_VOLT'][5], interval=params['REFRESH_INTERVAL'], run_once=False)
+@timer.register(pin=params['vpins']['BRICK_TO_VPIN_VOLT'][6], interval=params['REFRESH_INTERVAL'], run_once=False)
 def write_to_virtual_pin(pin):
-    '''
-    update all cell_v's
-    '''
+    '''update all cell_v's'''
     cell_v = 3.69987 # '<YourSensorData>'
 
     print('writing {} to vpin {}'.format(cell_v, pin))
@@ -97,8 +98,38 @@ def write_to_virtual_pin(pin):
     else:
         blynk.set_property(pin, 'color', params['BATT_COLOR_HIGH'])
 
-# main loop that starts program and handles registered events
-if __name__ == '__main__':
-    while True:
+
+def alert_listener():
+    '''listen for alerts from the bms script'''
+    global exit_request
+    while not exit_request:
+        pass
+
+
+def blynk_main():
+    global exit_request
+    while not exit_request:
         blynk.run()
         timer.run()
+
+# main loop that starts program and handles registered events
+if __name__ == '__main__':
+    global exit_request
+    try:
+        exit_request = False
+        blynk_thread = threading.Thread(target=blynk_main)
+        alert_thread = threading.Thread(target=alert_listener)
+        blynk_thread.start()
+        alert_thread.start()
+        print('blynk script running...')
+        # keep this main loop running to catch any
+        # keyboardinteerrupts, then send a request to finish thread execution
+        while True:
+            sleep(1)
+
+    except KeyboardInterrupt:
+        exit_request = True
+        print('\nblynk script requesting to exit...')
+        blynk_thread.join()
+        alert_thread.join()
+        print('blynk script terminated')

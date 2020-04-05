@@ -1,7 +1,7 @@
 import psutil
 from subprocess import PIPE
 import time
-from app.bms import *
+import app.bms as bms
 
 class TestSimBms:
 
@@ -19,7 +19,7 @@ class TestSimBms:
 
     @classmethod
     def teardown(self):
-        assert(self.bms_process.status() == psutil.STATUS_STOPPED)
+        assert self.bms_process.status() == psutil.STATUS_STOPPED
         self.bms_process.kill()
 
     def test_one(self):
