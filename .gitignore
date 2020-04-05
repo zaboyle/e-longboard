@@ -1,0 +1,5 @@
+**__init__.py
+**.pyc
+*.egg-info/
+LICENSE
+.vscode/
