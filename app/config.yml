@@ -1,0 +1,53 @@
+default:
+
+  blynk:
+
+    vpins:
+
+      JOYSTICK: 0 # set to MERGE
+      BATT_LARGE: 1
+
+      BRICK_TO_VPIN:
+        0: &vpin0 2
+        1: &vpin1 3
+        2: &vpin2 4
+        3: &vpin3 5
+        4: &vpin4 6
+        5: &vpin5 7
+        6: &vpin6 8
+
+      VPIN_TO_BRICK:
+        *vpin0: 0
+        *vpin1: 1
+        *vpin2: 2
+        *vpin3: 3
+        *vpin4: 4
+        *vpin5: 5
+        *vpin6: 6
+
+    BATT_COLOR_HIGH: '#00FF00'
+    BATT_COLOR_LOW: '#FF0000'
+    BATT_WARNING_P: 20.0 # 20%
+    CELL_WARNING_V: 3.25 # 20%
+    REFRESH_INTERVAL: 5  # sec
+  
+  bms:
+
+    pins: null
+
+    # start reducing power coming from motor
+    BATT_SHUTDOWN_SOFT_P: 10
+    # shutdown electronics and connection to motor
+    BATT_SHUTDOWN_HARD_P: 0
+    CELL_MIN_V: 3.0  # 0%
+    CELL_MAX_V: 4.2  # 100%
+  
+  motor:
+
+    pins: null
+
+    # large instantaneous increases in motor speed 
+    # will be divided up into smaller chunks for 
+    # smoother controller experience
+    MOTOR_SPEED_STEP_NUM: 5
+    MOTOR_SPEED_STEP_TIME: 100 # ms
