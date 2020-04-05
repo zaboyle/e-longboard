@@ -7,23 +7,32 @@ default:
       JOYSTICK: 0 # set to MERGE
       BATT_LARGE: 1
 
-      BRICK_TO_VPIN:
-        0: &vpin0 2
-        1: &vpin1 3
-        2: &vpin2 4
-        3: &vpin3 5
-        4: &vpin4 6
-        5: &vpin5 7
-        6: &vpin6 8
+      BRICK_TO_VPIN_VOLT:
+        0: &brick0_vpin 2
+        1: &brick1_vpin 3
+        2: &brick2_vpin 4
+        3: &brick3_vpin 5
+        4: &brick4_vpin 6
+        5: &brick5_vpin 7
+        6: &brick6_vpin 8
+
+      BRICK_TO_VPIN_BLEED:
+        0: 9
+        1: 10
+        2: 11
+        3: 12
+        4: 13
+        5: 14
+        6: 15
 
       VPIN_TO_BRICK:
-        *vpin0: 0
-        *vpin1: 1
-        *vpin2: 2
-        *vpin3: 3
-        *vpin4: 4
-        *vpin5: 5
-        *vpin6: 6
+        *brick0_vpin: 0
+        *brick1_vpin: 1
+        *brick2_vpin: 2
+        *brick3_vpin: 3
+        *brick4_vpin: 4
+        *brick5_vpin: 5
+        *brick6_vpin: 6
 
     BATT_COLOR_HIGH: '#00FF00'
     BATT_COLOR_LOW: '#FF0000'
@@ -41,7 +50,7 @@ default:
     BATT_SHUTDOWN_HARD_P: 0
     CELL_MIN_V: 3.0  # 0%
     CELL_MAX_V: 4.2  # 100%
-  
+
   motor:
 
     pins: null

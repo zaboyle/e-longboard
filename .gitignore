@@ -1,5 +1,5 @@
-**__init__.py
-**.pyc
 *.egg-info/
-LICENSE
+.pytest_cache/
 .vscode/
+**.pyc
+LICENSE
