@@ -23,5 +23,6 @@ setup(
 		'PyYAML==5.3.1',
 		'psutil==5.7.0',
 		'pytest==4.6.9',
+		'pytest-xdist==1.31.0',
     ],
 )
