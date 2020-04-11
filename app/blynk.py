@@ -16,7 +16,7 @@ import utils
 #======================================================================#
 parser = argparse.ArgumentParser(description='e-longboard BMS Blynk interaction script')
 parser.add_argument('-c', '--config', type=str, default='default', help='specific configuration specified in config.yml')
-parser.add_argument('-f', '--config_file', type=argparse.FileType(mode='r'), required=True, help='location of config file')
+parser.add_argument('-f', '--config_file', type=argparse.FileType(mode='r'), default='./app/config.yml', help='location of config file')
 parser.add_argument('-p', '--alert_port', type=int, default=4000, help='port to listen on for alerts')
 
 args, other_args = parser.parse_known_args()
@@ -106,53 +106,12 @@ class Program:
         # use to terminate threads on keyboardinterrupt
         self.exit_request = False
 
-    def alert_listener(self):
-        '''listen for alerts from the bms script'''
-
-        # Create an INET, STREAMing socket, this is TCP
-        # TCP = socket.SOCK_STREAM
-        # UDP = socket.SOCK_DGRAM
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # Bind the socket to the server
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.bind(('localhost', args.alert_port))
-        sock.listen(5)
-        # Socket accept() and recv() will block for a maximum of 1 second. If 
-        # you omit this, it blocks indefinitely, waiting for a connection.
-        # keep here in order to stop program on ctrl + C
-        sock.settimeout(1)
-
-        while not self.exit_request:
-            # Listen for a connection for 1s.  The socket library avoids consuming
-            # CPU while waiting for a connection.
-            try:
-                clientsocket, address = sock.accept()
-            except socket.timeout:
-                continue
-
-            message_chunks = []
-            while True:
-                try:
-                    data = clientsocket.recv(4096)
-                except socket.timeout:
-                    continue
-                if not data:
-                    break
-                message_chunks.append(data)
-
-            clientsocket.close()
-
-            # Decode list-of-byte-strings to UTF8 and parse JSON data
-            message_bytes = b''.join(message_chunks)
-            message_str = message_bytes.decode('utf-8')
-
-            try:
-                message_dict = json.loads(message_str)
-            except Exception:
-                print('Error: invalid alert contents')
-                continue
-
-            print('received data {}'.format(message_dict))
+    def alert_handler(self):
+        '''listen for alerts and update program state accordingly'''
+        # generator will yield alerts as they are received
+        for new_alert in utils.alert_listen(self, 'localhost', args.alert_port):
+            self.new_alert = new_alert
+            print('new_alert: {}'.format(new_alert))
 
     def blynk_main(self):
         while not self.exit_request:
@@ -162,7 +121,7 @@ class Program:
     def run(self):
         try:
             blynk_thread = threading.Thread(target=self.blynk_main)
-            alert_thread = threading.Thread(target=self.alert_listener)
+            alert_thread = threading.Thread(target=self.alert_handler)
             blynk_thread.start()
             alert_thread.start()
             print('blynk script running...')
