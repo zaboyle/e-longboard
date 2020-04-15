@@ -15,10 +15,11 @@ setup(
 	license='GPL-3.0',
 	url='https://github.com/zaboyle/e-longboard',
     packages=[
-		'app',
+		'src',
 	],
     include_package_data=True,
     install_requires=[
+		'adafruit-mcp3008',
         'blynklib==0.2.6',
 		'PyYAML==5.3.1',
 		'psutil==5.7.0',

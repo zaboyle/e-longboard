@@ -16,7 +16,7 @@ import utils
 #======================================================================#
 parser = argparse.ArgumentParser(description='e-longboard BMS Blynk interaction script')
 parser.add_argument('-c', '--config', type=str, default='default', help='specific configuration specified in config.yml')
-parser.add_argument('-f', '--config_file', type=argparse.FileType(mode='r'), default='./app/config.yml', help='location of config file')
+parser.add_argument('-f', '--config_file', type=argparse.FileType(mode='r'), default='./misc/config.yml', help='location of config file')
 parser.add_argument('-p', '--alert_port', type=int, default=4000, help='port to listen on for alerts')
 
 args, other_args = parser.parse_known_args()
